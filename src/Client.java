@@ -6,8 +6,12 @@ import java.net.Socket;
 
 
 class Client {
-    static final String ASKIP = "Entrez l'IP de la machine du serveur de Jeu : ";
-    static final String ASKUSERNAME = "Entrez votre nom d'utilisateur :  ";
+    static final String ASK_IP = "Entrez l'IP de la machine du serveur de Jeu : ";
+    static final String ASK_USERNAME = "Entrez votre nom d'utilisateur :  ";
+    static final int MAX_USERNAME_LENGHT = 10;
+    static final int MIN_USERNAME_LENGHT = 3;
+    static final String INCORRECT_USERNAME = "Votre nom d'utilisateur ne doit pas contenir d'espaces " +
+    "et doit contenir entre " + MIN_USERNAME_LENGHT + " et " + MAX_USERNAME_LENGHT + " caractères !";
 
     private String username;
     private Socket socket;
@@ -23,8 +27,10 @@ class Client {
         System.out.println("Connecté au serveur sur " + host + ":" + port);
     }
 
-    public String getUsername() {
-        return this.username;
+    public static boolean validUsername(String username) {
+        return (username.length() >= MIN_USERNAME_LENGHT 
+                && username.length() <= MAX_USERNAME_LENGHT 
+                && !username.contains(" "));
     }
 
     public void start() {
@@ -55,13 +61,19 @@ class Client {
 
     public static void main(String[] args) {
         try {
-            BufferedReader preScanner = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader preReader = new BufferedReader(new InputStreamReader(System.in));
 
-            System.out.println(ASKIP);
-            String host = preScanner.readLine();
+            System.out.println(ASK_IP);
+            String host = preReader.readLine();
 
-            System.out.println(ASKUSERNAME);
-            String username = preScanner.readLine();
+            String username = "";
+            while (true) {
+                System.out.println(ASK_USERNAME);
+                username = preReader.readLine();
+
+                if (Client.validUsername(username)) {break;}
+                else {System.out.println(INCORRECT_USERNAME);}
+            }
 
             Client client = new Client(username, host, 55555);
             client.start();
