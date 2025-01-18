@@ -23,6 +23,19 @@ public class Server {
                 String username = lobbyReader.readLine();
                 System.out.println("Nom d'utilisateur du client : " + username);
 
+                switch (lobbyReader.readLine()) {
+                    case "connect":
+                        // demander une partie à un autre client
+                        break;
+                    
+                    case "career":
+                        // afficher l'historique
+                        break;
+
+                    default:
+                        break;
+                }
+
             } catch (IOException e) {
                 System.out.println("Erreur lors de l'acceptation de la connexion : " + e.getMessage());
             }
