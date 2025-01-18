@@ -32,6 +32,7 @@ application {
     mainClass = 'fr.puissance4.App'
 }
 
+compileJava.options.encoding = 'UTF-8'
 
 tasks.register('runServer', JavaExec) {
     group = 'application'
@@ -45,4 +46,6 @@ tasks.register('runClient', JavaExec) {
     description = 'Lancer le client'
     mainClass = 'fr.puissance4.Client'
     classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    logging.captureStandardOutput LogLevel.QUIET
 }
