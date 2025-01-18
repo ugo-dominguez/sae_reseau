@@ -1,20 +1,56 @@
-# SAE Réseau/système
+# SAE Réseau/Système
 
-Lucas THOMAS
-Ugo DOMINGUEZ
-Antony PERDIEUS
-Yasin KESKIN
+**Lucas THOMAS**  
+**Ugo DOMINGUEZ**  
+**Antony PERDIEUS**  
+**Yasin KESKIN**
 
 ## Manuel d’utilisation
 
-Lors de l’exécution du programme, il faut tout d'abord renseigner l'ip du serveur de jeu sur lequel on souhaite se connecter, puis choisir notre nom de joueur. Ensuite, deux options s’offrent à nous : soit consulter nos résultats dans la BD avec `career`, les résultats étant associés au nom du joueur, soit utiliser `connect <pseudo>` pour défier un adversaire, la partie se lançant alors. Lors du choix du pseudo, nous sommes placés dans un salon d’attente où nous pouvons soit attendre un défi, soit provoquer un adversaire.
+### Pour exécuter le Client :
+```bash
+gradle runClient
+```
 
-## Choix technique
+### Pour exécuter le Serveur :
+```bash
+gradle runServer
+```
 
-Concernant l’historique des joueurs, il est stocké dans une BD à partir du nom du joueur, ce qui permet de récupérer ses informations depuis n’importe quelle session, plutôt que de stocker ces données à partir de l’IP, ce qui restreindrait l’utilisation du compte à une seule machine. Pour la gestion de la base de données, nous avons utilisé SQLite et JDBC, le paterne singleton a été mobilisé. Nous avons également utilisé Gradle pour gérer les dépendances entre JDBC et SQLite.
+Lors de l’exécution du client, il faut tout d'abord renseigner l’adresse IP du serveur de jeu sur lequel on souhaite se connecter, puis choisir son nom de joueur.  
+
+### Commandes disponibles :
+- **`ls`** : Affiche la liste des joueurs connectés au serveur.  
+- **`help`** : Affiche la liste des commandes disponibles avec une description.  
+- **`career`** : Consulte l’historique des parties enregistrées dans la base de données, associé au pseudo actuel.  
+- **`connect <nom joueur>`** : Défie un autre joueur pour lancer une partie.
+
+---
+
+## Choix techniques
+
+Pour l’historique des joueurs, les informations sont stockées dans une base de données à partir du nom du joueur, ce qui permet de récupérer ces données depuis n’importe quelle session. Ce choix évite de limiter l’accès à une seule machine, comme cela aurait été le cas avec un stockage basé sur l’adresse IP.  
+
+Pour la gestion de la base de données, nous avons utilisé **SQLite** avec **JDBC**, et le **pattern Singleton** a été utilisé pour garantir une gestion unique et centralisée de la base de données.  
+
+Enfin, **Gradle** a été choisi pour gérer les dépendances, notamment entre JDBC et SQLite, et faciliter l’exécution du projet.
+
+---
 
 ## Diagramme de classe 
 ![UML](UML.png)
+
+---
+
 ## Protocole
 
-Lors de l’exécution du programme, le serveur demande son nom à l’utilisateur. Ensuite, lorsque l’utilisateur utilise `connect <pseudo>`, le serveur lance la partie sur le client cible et sur le client ayant initié le défi. La partie se déroule de cette manière : le serveur envoie l’information de la grille aux deux joueurs et demande au joueur dont c’est le tour de choisir une colonne. Tant que ce joueur ne renvoie pas de choix valide, le serveur attend sa réponse. Ainsi de suite, jusqu’à ce qu’un des joueurs gagne, ou qu'une égalité se produise. Pour l’affichage de l’historique des parties, le serveur reçoit la requête du client (`career`), interroge la base de données puis envoi les informations au client.
+Lors de l’exécution du programme, le serveur demande un nom à l’utilisateur.  
+
+- Lorsque l’utilisateur utilise la commande `connect <nom joueur>`, le serveur lance la partie entre le client cible et le client ayant initié le défi.  
+- La partie se déroule comme suit :  
+  1. Le serveur envoie la grille de jeu aux deux joueurs.  
+  2. Le joueur dont c’est le tour reçoit une demande de choix de colonne.  
+  3. Tant que le joueur ne renvoie pas de choix valide, le serveur attend sa réponse.  
+  4. Le processus continue jusqu’à ce qu’un des joueurs gagne ou qu’une égalité soit déclarée.  
+
+- Pour afficher l’historique des parties, le serveur reçoit la requête `career` du client, interroge la base de données, puis envoie les informations au client.
