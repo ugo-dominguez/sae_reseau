@@ -8,6 +8,8 @@ import java.util.HashMap;
 
 
 public class Server {
+    static final String INVALID_USERNAME = "ERR : Ce joueur n'existe pas, ou ce nom d'utilisateur est incorrect !";
+
     private HashMap<String, Socket> joueurs;
     private ServerSocket serverSocket;
 
@@ -17,44 +19,79 @@ public class Server {
         System.out.println("Serveur démarré sur le port : " + port);
     }
 
+    public BufferedReader getReader(Socket client) throws Exception {
+        return new BufferedReader(new InputStreamReader(client.getInputStream()));
+    }
+
+    public PrintWriter getWriter(Socket client) throws Exception {
+        return new PrintWriter(client.getOutputStream(), true);
+    }
+
+
+    public void connect(Socket client, String username) throws Exception {
+        if (Client.validUsername(username) && this.joueurs.containsKey(username)) {
+            Partie game = new Partie(client, this.joueurs.get(username));
+            game.startGame();
+        } else {this.getWriter(client).println(INVALID_USERNAME);}
+    }
+
+    public void checkCommands(Socket client, String command) throws Exception {
+        String[] parts = command.split(" ");
+
+        switch (parts[0].toLowerCase()) {
+            case "connect":
+                System.out.print("caca");
+                if (parts.length > 1) {
+                    String requestedUsername = parts[1].toLowerCase();
+                    this.connect(client, requestedUsername);
+                }
+                break;
+            
+            case "career":
+                System.out.print("cacareer");
+                // afficher l'historique
+                break;
+
+            default:
+                break;
+        }
+    }
+
     public void start() {
         while (true) {
             try {
                 Socket client = serverSocket.accept();
-                System.out.println("Client connecté : " + client.getInetAddress());
+                new Thread(() -> handleClient(client)).start();
 
-                BufferedReader lobbyReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                PrintWriter lobbyWriter = new PrintWriter(client.getOutputStream(), true);
+            } catch (Exception e) {
+                System.out.println("ERR : " + e.getMessage());
+            }
+        }
+    }
 
-                String username = lobbyReader.readLine().toLowerCase();
-                System.out.println("Nom d'utilisateur du client : " + username);
+    private void handleClient(Socket client) {
+        try {
+            System.out.println("Client connecté : " + client.getInetAddress());
 
-                this.joueurs.put(username, client);
+            BufferedReader lobbyReader = this.getReader(client);
 
-                String command = lobbyReader.readLine();
-                String[] parts = command.split(" ");
+            String username = lobbyReader.readLine().toLowerCase();
+            System.out.println("Nom d'utilisateur du client : " + username);
 
-                switch (parts[0].toLowerCase()) {
-                    case "connect":
-                        if (parts.length > 1) {
-                            String connectUsername = parts[1].toLowerCase();
+            this.joueurs.put(username, client);
+            
+            String command;
+            while ((command = lobbyReader.readLine()) != null) {
+                this.checkCommands(client, command);
+            }
 
-                            if (Client.validUsername(username) && this.joueurs.containsKey(connectUsername)) {
-                                System.out.println("Demande de partie à " + connectUsername);
-                            } else {lobbyWriter.println("Ce joueur n'existe pas, ou ce nom d'utilisateur est incorrect !");}
-                        }
-                        break;
-                    
-                    case "career":
-                        // afficher l'historique
-                        break;
-
-                    default:
-                        break;
-                }
-
+        } catch (Exception e) {
+            System.out.println("ERR : " + e.getMessage());
+        } finally {
+            try {
+                client.close();
             } catch (IOException e) {
-                System.out.println("Erreur lors de l'acceptation de la connexion : " + e.getMessage());
+                System.out.println("ERR lors de la fermeture du client : " + e.getMessage());
             }
         }
     }

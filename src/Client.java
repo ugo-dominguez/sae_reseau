@@ -10,7 +10,7 @@ class Client {
     static final String ASK_USERNAME = "Entrez votre nom d'utilisateur :  ";
     static final int MAX_USERNAME_LENGHT = 10;
     static final int MIN_USERNAME_LENGHT = 3;
-    static final String INCORRECT_USERNAME = "Votre nom d'utilisateur ne doit pas contenir d'espaces " +
+    static final String INCORRECT_USERNAME = "ERR : Votre nom d'utilisateur ne doit pas contenir d'espaces " +
     "et doit contenir entre " + MIN_USERNAME_LENGHT + " et " + MAX_USERNAME_LENGHT + " caractères !";
 
     private String username;
