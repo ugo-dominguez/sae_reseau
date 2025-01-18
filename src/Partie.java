@@ -75,47 +75,49 @@ public class Partie extends Thread {
     }
 
     private void handlePlayerInput(
-        BufferedReader reader, PrintWriter userWriter,
-        PrintWriter opponentWriter, Etat joueur) {
+    BufferedReader reader, PrintWriter userWriter,
+    PrintWriter opponentWriter, Etat joueur) {
 
-        try {
-            while (gameActive) {
-                synchronized (this) {
-                    userWriter.println(grille.toString());
-                    opponentWriter.println(grille.toString());
-                    userWriter.println("C'est votre tour, " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
-                    opponentWriter.println("C'est au tour de " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
-                }
-
-                userWriter.println(ASKCOLUMN);
-                try {
-                    int colChoisie = Integer.parseInt(reader.readLine()) - 1;
-
-                    if (placePiece(joueur, colChoisie)) {
-                        synchronized (this) {
-                            if (grille.verifierAlignement(joueur)) {
-                                userWriter.println("Félicitations ! Vous avez gagné !");
-                                opponentWriter.println("Vous avez perdu !\n" + getNomJoueur(joueur) + " a gagné !");
-                                gameActive = false;
-                            } else if (grille.estPleine()) {
-                                userWriter.println("La partie est terminée, Égalité !");
-                                opponentWriter.println("La partie est terminée, Égalité !");
-                                gameActive = false;
-                            }
-                        }
-                        break;
-                    } else {
-                        userWriter.println(INVALIDCOLUMN);
-                    }
-                } catch (NumberFormatException e) {
-                    userWriter.println("Entrée invalide. Veuillez entrer un numéro de colonne.");
-                }
+    try {
+        while (gameActive) {
+            synchronized (this) {
+                userWriter.println("C'est votre tour, " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
+                opponentWriter.println("C'est au tour de " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
+                userWriter.println(grille.toString());
+                opponentWriter.println(grille.toString());
             }
-        } catch (IOException e) {
-            System.out.println("ERR de communication avec le joueur : " + e.getMessage());
-            gameActive = false;
+
+            userWriter.println(ASKCOLUMN);
+            try {
+                String input = reader.readLine();
+                int colChoisie = Integer.parseInt(input) - 1;
+
+                if (placePiece(joueur, colChoisie)) {
+                    synchronized (this) {
+                        if (grille.verifierAlignement(joueur)) {
+                            userWriter.println("Félicitations ! Vous avez gagné !");
+                            opponentWriter.println("Le joueur " + getNomJoueur(joueur) + " a gagné !");
+                            gameActive = false;
+                        } else if (grille.estPleine()) {
+                            userWriter.println("La partie est terminée, Égalité !");
+                            opponentWriter.println("La partie est terminée, Égalité !");
+                            gameActive = false;
+                        }
+                    }
+                    break;
+                } else {
+                    userWriter.println(INVALIDCOLUMN);
+                }
+            } catch (NumberFormatException e) {
+                userWriter.println("Entrée invalide. Veuillez entrer un numéro de colonne.");
+            }
         }
+    } catch (IOException e) {
+        System.out.println("ERR de communication avec le joueur : " + e.getMessage());
+        gameActive = false;
     }
+}
+
 
     @Override
     public void run() {
