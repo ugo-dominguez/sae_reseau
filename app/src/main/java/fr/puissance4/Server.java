@@ -138,12 +138,6 @@ public class Server {
             
             String username = lobbyReader.readLine().toLowerCase();
             System.out.println("Nom d'utilisateur du client : " + username);
-            
-            if (joueurs.containsKey(username)) {
-                PrintWriter writer = this.getWriter(client);
-                writer.println("Joueur déjà connecté avec ce nom. Veuillez relancer votre client.");
-                return;
-            }
 
             System.out.println("Client connecté : " + client.getInetAddress());
             
