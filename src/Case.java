@@ -23,15 +23,15 @@ public class Case {
         String res = "";
 
         switch (this.etat) {
-            case Etat.P1:
+            case P1:
                 res = "O";
                 break;
 
-            case Etat.P2:
+            case P2:
                 res = "X";
                 break;
 
-            case Etat.VIDE:
+            case VIDE:
                 res = "■";
                 break;
         }

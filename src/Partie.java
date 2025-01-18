@@ -55,25 +55,15 @@ public class Partie extends Thread {
 
     public char getSymboleJoueur(Etat joueur) {
         switch (joueur) {
-            case Etat.P1:
+            case P1:
                 return 'O';
 
-            case Etat.P2:
+            case P2:
                 return 'X';
 
             default:
                 return '■';
         }
-    }
-
-    public void demanderNoms() throws IOException {
-        System.out.println("Demande des noms");
-        
-        this.writerJ1.println("Entrez un nom pour le Joueur 1 : ");
-        this.setNomP1(readerJ1.readLine());
-
-        this.writerJ2.println("Entrez un nom pour le Joueur 2 : ");
-        this.setNomP2(readerJ2.readLine());
     }
 
     public Etat getInitiateur() {
@@ -85,10 +75,10 @@ public class Partie extends Thread {
 
     public Etat prochainJoueur(Etat joueur) {
         switch (joueur) {
-            case Etat.P1:
+            case P1:
                 return Etat.P2;
         
-            case Etat.P2:
+            case P2:
                 return Etat.P1;
 
             default:
@@ -128,7 +118,6 @@ public class Partie extends Thread {
         this.writerJ1.println("Début de la partie");
         this.writerJ2.println("Début de la partie");
         
-        this.demanderNoms();
         Etat joueurActuel = this.getInitiateur();
         Etat joueurGagnant = null;
 
@@ -177,6 +166,7 @@ public class Partie extends Thread {
 
             this.readerJ1 = new BufferedReader(new InputStreamReader(this.client1.getInputStream()));
             this.writerJ1 = new PrintWriter(this.client1.getOutputStream(), true);
+            
             this.readerJ2 = new BufferedReader(new InputStreamReader(this.client2.getInputStream()));
             this.writerJ2 = new PrintWriter(this.client2.getOutputStream(), true);
             

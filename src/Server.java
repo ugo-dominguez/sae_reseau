@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,14 +16,12 @@ public class Server {
     public void start() {
         while (true) {
             try {
-                Socket client1 = serverSocket.accept();
-                System.out.println("Client 1 connecté : " + client1.getInetAddress());
+                Socket client = serverSocket.accept();
+                System.out.println("Client connecté : " + client.getInetAddress());
 
-                Socket client2 = serverSocket.accept();
-                System.out.println("Client 2 connecté : " + client2.getInetAddress());
-
-                Partie partie = new Partie(client1, client2);
-                partie.start();
+                BufferedReader lobbyReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                String username = lobbyReader.readLine();
+                System.out.println("Nom d'utilisateur du client : " + username);
 
             } catch (IOException e) {
                 System.out.println("Erreur lors de l'acceptation de la connexion : " + e.getMessage());
