@@ -7,7 +7,7 @@ Yasin KESKIN
 
 ## Manuel d’utilisation
 
-Lors de l’exécution du programme, il faut d'abord choisir notre nom de joueur. Ensuite, deux options s’offrent à nous : soit consulter nos résultats dans la BD avec `career`, les résultats étant associés au nom du joueur, soit utiliser `connect <pseudo>` pour défier un adversaire, la partie se lançant alors. Lors du choix du pseudo, nous sommes placés dans un salon d’attente où nous pouvons soit attendre un défi, soit provoquer un adversaire.
+Lors de l’exécution du programme, il faut tout d'abord renseigner l'ip du serveur de jeu sur lequel on souhaite se connecter, puis choisir notre nom de joueur. Ensuite, deux options s’offrent à nous : soit consulter nos résultats dans la BD avec `career`, les résultats étant associés au nom du joueur, soit utiliser `connect <pseudo>` pour défier un adversaire, la partie se lançant alors. Lors du choix du pseudo, nous sommes placés dans un salon d’attente où nous pouvons soit attendre un défi, soit provoquer un adversaire.
 
 ## Choix technique
 
