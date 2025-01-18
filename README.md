@@ -14,7 +14,7 @@ Lors de l’exécution du programme, il faut tout d'abord renseigner l'ip du ser
 Concernant l’historique des joueurs, il est stocké dans une BD à partir du nom du joueur, ce qui permet de récupérer ses informations depuis n’importe quelle session, plutôt que de stocker ces données à partir de l’IP, ce qui restreindrait l’utilisation du compte à une seule machine. Pour la gestion de la base de données, nous avons utilisé SQLite et JDBC. Nous avons également utilisé Gradle pour gérer les dépendances entre JDBC et SQLite.
 
 ## Diagramme de classe 
-
+![UML](UML.png)
 ## Protocole
 
 Lors de l’exécution du programme, le serveur demande son nom à l’utilisateur. Ensuite, lorsque l’utilisateur utilise `connect <pseudo>`, le serveur lance la partie sur le client cible et sur le client ayant initié le défi. La partie se déroule de cette manière : le serveur envoie l’information de la grille aux deux joueurs et demande au joueur dont c’est le tour de choisir une colonne. Tant que ce joueur ne renvoie pas de choix valide, le serveur attend sa réponse. Ainsi de suite, jusqu’à ce qu’un des joueurs gagne, ou qu'une égalité se produise. Pour l’affichage de l’historique des parties, le serveur reçoit la requête du client (`career`), interroge la base de données puis envoi les informations au client.
