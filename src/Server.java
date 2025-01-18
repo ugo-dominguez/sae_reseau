@@ -31,8 +31,17 @@ public class Server {
     public void connect(Socket client, String username) throws Exception {
         if (Client.validUsername(username) && this.joueurs.containsKey(username)) {
             Partie game = new Partie(client, this.joueurs.get(username));
-            game.startGame();
+            game.start();
         } else {this.getWriter(client).println(INVALID_USERNAME);}
+    }
+
+    public void displayClients(Socket client) throws Exception {
+        PrintWriter writer = this.getWriter(client);
+        writer.println("Joueurs connectés :");
+        for (String player : this.joueurs.keySet()) {
+            writer.println("- " + player);
+        }
+        writer.println(""); 
     }
 
     public void checkCommands(Socket client, String command) throws Exception {
@@ -40,7 +49,6 @@ public class Server {
 
         switch (parts[0].toLowerCase()) {
             case "connect":
-                System.out.print("caca");
                 if (parts.length > 1) {
                     String requestedUsername = parts[1].toLowerCase();
                     this.connect(client, requestedUsername);
@@ -48,7 +56,6 @@ public class Server {
                 break;
             
             case "career":
-                System.out.print("cacareer");
                 // afficher l'historique
                 break;
 
@@ -79,7 +86,8 @@ public class Server {
             System.out.println("Nom d'utilisateur du client : " + username);
 
             this.joueurs.put(username, client);
-            
+            this.displayClients(client);
+
             String command;
             while ((command = lobbyReader.readLine()) != null) {
                 this.checkCommands(client, command);
@@ -102,7 +110,7 @@ public class Server {
             server.start();
 
         } catch (IOException e) {
-            System.out.println("Erreur serveur : " + e.getMessage());
+            System.out.println("ERR serveur : " + e.getMessage());
         }
     }
 }

@@ -42,7 +42,7 @@ class Client {
                 }
 
             } catch (IOException e) {
-                System.out.println("Erreur lors de la lecture depuis le serveur : " + e.getMessage());
+                System.out.println("ERR lors de la lecture depuis le serveur : " + e.getMessage());
             }
         });
 
@@ -55,7 +55,7 @@ class Client {
             }
 
         } catch (IOException e) {
-            System.out.println("Erreur lors de l'envoi au serveur : " + e.getMessage());
+            System.out.println("ERR lors de l'envoi au serveur : " + e.getMessage());
         }
     }
 
@@ -79,7 +79,7 @@ class Client {
             client.start();
 
         } catch (IOException e) {
-            System.out.println("Erreur client : " + e.getMessage());
+            System.out.println("ERR client : " + e.getMessage());
         }
     }
 }
