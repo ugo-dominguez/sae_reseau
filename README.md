@@ -11,7 +11,7 @@ Lors de l’exécution du programme, il faut tout d'abord renseigner l'ip du ser
 
 ## Choix technique
 
-Concernant l’historique des joueurs, il est stocké dans une BD à partir du nom du joueur, ce qui permet de récupérer ses informations depuis n’importe quelle session, plutôt que de stocker ces données à partir de l’IP, ce qui restreindrait l’utilisation du compte à une seule machine. Pour la gestion de la base de données, nous avons utilisé SQLite et JDBC. Nous avons également utilisé Gradle pour gérer les dépendances entre JDBC et SQLite.
+Concernant l’historique des joueurs, il est stocké dans une BD à partir du nom du joueur, ce qui permet de récupérer ses informations depuis n’importe quelle session, plutôt que de stocker ces données à partir de l’IP, ce qui restreindrait l’utilisation du compte à une seule machine. Pour la gestion de la base de données, nous avons utilisé SQLite et JDBC, le paterne singleton a été mobilisé. Nous avons également utilisé Gradle pour gérer les dépendances entre JDBC et SQLite.
 
 ## Diagramme de classe 
 ![UML](UML.png)
