@@ -86,13 +86,11 @@ public class Partie extends Thread {
                 while (gameActive) {
                     userWriter.println(grille.toString());
                     opponentWriter.println(grille.toString());
-                    userWriter.println("C'est votre tour, " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
+                    userWriter.println("C'est votre tour, " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")" + "\n" + ASKCOLUMN);
                     opponentWriter.println("C'est au tour de " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
 
-                    userWriter.println(ASKCOLUMN);
                     try {
-                        String input = reader.readLine();
-                        int colChoisie = Integer.parseInt(input) - 1;
+                        int colChoisie = reader.read() - '0' - 1;
 
                         if (placePiece(joueur, colChoisie)) {
                             if (grille.verifierAlignement(joueur)) {
@@ -111,6 +109,7 @@ public class Partie extends Thread {
                             userWriter.println(INVALIDCOLUMN);
                         }
                     } catch (NumberFormatException e) {
+                        System.out.println("Skibidi");
                         userWriter.println("Entrée invalide. Veuillez entrer un numéro de colonne.");
                     }
                 }
