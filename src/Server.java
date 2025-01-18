@@ -60,7 +60,7 @@ public class Server {
                 if (parts.length > 1) {
                     String requestedUsername = parts[1].toLowerCase();
                     this.connect(this.joueurs.get(username), username, requestedUsername);
-                }
+                } else {this.getWriter(this.joueurs.get(username)).println("Utilisation : connect <pseudo>");}
                 break;
             
             case "career":
