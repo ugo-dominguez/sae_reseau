@@ -5,6 +5,6 @@ package fr.puissance4;
 
 public class App {
     public static void main(String[] args) {
-        Database db = new Database();
+        Database db = Database.getDatabase();
     }
 }

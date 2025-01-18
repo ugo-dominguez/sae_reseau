@@ -1,5 +1,5 @@
-package fr.puissance4;
 
+package fr.puissance4;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,30 +29,39 @@ public class Server {
         return new PrintWriter(client.getOutputStream(), true);
     }
 
-    public void connect(Socket client, String username) throws Exception {
-        if (Client.validUsername(username) && this.joueurs.containsKey(username)) {
-            Partie game = new Partie(client, this.joueurs.get(username));
-            game.start();
+
+    public void connect(Socket client, String username, String requested) throws Exception {
+        if (Client.validUsername(username) && this.joueurs.containsKey(username) && !(username.equals(requested))) {
+            Partie game = new Partie(this.joueurs.get(username), this.joueurs.get(requested), username, requested);
+
+            new Thread(() -> {
+                try {
+                    game.start();
+                } catch (Exception e) {
+                    System.out.println("ERR Jeu : " + e.getMessage());
+                }
+            }).start();
         } else {this.getWriter(client).println(INVALID_USERNAME);}
     }
 
-    public void displayClients(Socket client) throws Exception {
+    public void displayClients(String username) throws Exception {
+        Socket client = this.joueurs.get(username);
         PrintWriter writer = this.getWriter(client);
         writer.println("Joueurs connectés :");
         for (String player : this.joueurs.keySet()) {
-            writer.println("- " + player);
+            if (player != username) writer.println("- " + player);
         }
         writer.println(""); 
     }
 
-    public void checkCommands(Socket client, String command) throws Exception {
+    public void checkCommands(String username, String command) throws Exception {
         String[] parts = command.split(" ");
 
         switch (parts[0].toLowerCase()) {
             case "connect":
                 if (parts.length > 1) {
                     String requestedUsername = parts[1].toLowerCase();
-                    this.connect(client, requestedUsername);
+                    this.connect(this.joueurs.get(username), username, requestedUsername);
                 }
                 break;
             
@@ -87,11 +96,11 @@ public class Server {
             System.out.println("Nom d'utilisateur du client : " + username);
 
             this.joueurs.put(username, client);
-            this.displayClients(client);
+            this.displayClients(username);
 
             String command;
             while ((command = lobbyReader.readLine()) != null) {
-                this.checkCommands(client, command);
+                this.checkCommands(username, command);
             }
 
         } catch (Exception e) {

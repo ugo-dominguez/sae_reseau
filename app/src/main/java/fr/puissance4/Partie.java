@@ -1,14 +1,11 @@
 package fr.puissance4;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.Random;
-
 
 public class Partie extends Thread {
     static final String ASKCOLUMN = "Dans quelle colonne voulez-vous placer votre pièce ? : ";
@@ -26,13 +23,24 @@ public class Partie extends Thread {
     private PrintWriter writerJ1;
     private PrintWriter writerJ2;
 
-    public Partie(Socket client1, Socket client2) {
+    private boolean gameActive;
+
+    private Database database;
+
+    public Partie(Socket client1, Socket client2, String user1, String user2) throws IOException {
         this.joueurs = new HashMap<>();
-        this.joueurs.put(Etat.P1, "Joueur 1");
-        this.joueurs.put(Etat.P2, "Joueur 2");
+        this.joueurs.put(Etat.P1, user1);
+        this.joueurs.put(Etat.P2, user2);
 
         this.client1 = client1;
         this.client2 = client2;
+        this.writerJ1 = new PrintWriter(client1.getOutputStream(), true);
+        this.writerJ2 = new PrintWriter(client2.getOutputStream(), true);
+        this.readerJ1 = new BufferedReader(new InputStreamReader(client1.getInputStream()));
+        this.readerJ2 = new BufferedReader(new InputStreamReader(client2.getInputStream()));
+
+        this.gameActive = true;
+        this.database = Database.getDatabase();
     }
 
     public void setGrille(Grille grille) {
@@ -47,116 +55,69 @@ public class Partie extends Thread {
         return this.joueurs.getOrDefault(joueur, "Inconnu");
     }
 
-    public void setNomP1(String newNom) {
-        this.joueurs.put(Etat.P1, newNom);
-    }
-
-    public void setNomP2(String newNom) {
-        this.joueurs.put(Etat.P2, newNom);
-    }
-
     public char getSymboleJoueur(Etat joueur) {
         switch (joueur) {
             case P1:
                 return 'O';
-
             case P2:
                 return 'X';
-
             default:
                 return '■';
         }
     }
 
-    public Etat getInitiateur() {
-        Random random = new Random();
-        
-        int tirage = random.nextInt(2);
-        return (tirage == 0) ? Etat.P1 : Etat.P2;
-    }
-
     public Etat prochainJoueur(Etat joueur) {
-        switch (joueur) {
-            case P1:
-                return Etat.P2;
-        
-            case P2:
-                return Etat.P1;
-
-            default:
-                return this.getInitiateur();
-        }
+        return joueur == Etat.P1 ? Etat.P2 : Etat.P1;
     }
 
-    public int demanderColonne(Etat joueur) throws IOException, InvalidColumnException {
-        int colChoisie = -1;
-        BufferedReader currentReader;
-        PrintWriter currentWriter;
-        if (joueur.equals(Etat.P1)) {
-            currentReader = this.readerJ1;
-            currentWriter = this.writerJ1;
-        } else {
-            currentReader = this.readerJ2;
-            currentWriter = this.writerJ2;
+    private synchronized boolean placePiece(Etat joueur, int col) {
+        if (grille.colonneValide(col)) {
+            grille.ajouterPiece(joueur, col);
+            return true;
         }
-        
-        while (true) {
-            try {
-                currentWriter.println(ASKCOLUMN);
-                colChoisie = Integer.valueOf(currentReader.readLine());
+        return false;
+    }
 
-                if (!(this.grille.colonneValide(colChoisie - 1))) {
-                    throw new InvalidColumnException();
+    private void handlePlayerInput(
+    BufferedReader reader, PrintWriter userWriter,
+    PrintWriter opponentWriter, Etat joueur) {
+        try {
+            synchronized (this) {
+                while (gameActive) {
+                    userWriter.println(grille.toString());
+                    opponentWriter.println(grille.toString());
+                    userWriter.println("C'est votre tour, " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
+                    opponentWriter.println("C'est au tour de " + getNomJoueur(joueur) + " (" + getSymboleJoueur(joueur) + ")");
+
+                    userWriter.println(ASKCOLUMN);
+                    try {
+                        String input = reader.readLine();
+                        int colChoisie = Integer.parseInt(input) - 1;
+
+                        if (placePiece(joueur, colChoisie)) {
+                            if (grille.verifierAlignement(joueur)) {
+                                userWriter.println("Félicitations ! Vous avez gagné !");
+                                opponentWriter.println("Le joueur " + getNomJoueur(joueur) + " a gagné !");
+                                gameActive = false;
+                                database.insererPartie(getNomJoueur(Etat.P1), getNomJoueur(Etat.P2), getNomJoueur(joueur));
+                            } else if (grille.estPleine()) {
+                                userWriter.println("La partie est terminée, Égalité !");
+                                opponentWriter.println("La partie est terminée, Égalité !");
+                                gameActive = false;
+                                database.insererPartie(getNomJoueur(Etat.P1), getNomJoueur(Etat.P2), null);
+                            }
+                            break;
+                        } else {
+                            userWriter.println(INVALIDCOLUMN);
+                        }
+                    } catch (NumberFormatException e) {
+                        userWriter.println("Entrée invalide. Veuillez entrer un numéro de colonne.");
+                    }
                 }
-                break;
-            } catch (InputMismatchException e) {
-                currentWriter.println(INVALIDCOLUMN);
             }
-        }
-        return colChoisie;
-    }
-
-    public void startGame() throws IOException, InvalidColumnException {
-        this.writerJ1.println("Début de la partie");
-        this.writerJ2.println("Début de la partie");
-        
-        Etat joueurActuel = this.getInitiateur();
-        Etat joueurGagnant = null;
-
-        while (true) {
-            writerJ1.println(grille.toString());
-            writerJ2.println(grille.toString());
-            
-            String nom = this.getNomJoueur(joueurActuel);
-            char symbole = this.getSymboleJoueur(joueurActuel);
-            
-            this.writerJ1.println("Au tour de " + nom + " (" + symbole + ")");
-            this.writerJ2.println("Au tour de " + nom + " (" + symbole + ")");
-
-            int indiceCol = demanderColonne(joueurActuel);
-            this.grille.ajouterPiece(joueurActuel, indiceCol - 1);
-
-            if (this.grille.verifierAlignement(joueurActuel)) {
-                joueurGagnant = joueurActuel;
-                break;
-            } 
-
-            if (this.grille.estPleine()) {
-                joueurGagnant = null;
-                break;
-            }
-
-            joueurActuel = this.prochainJoueur(joueurActuel);
-        }
-
-        this.writerJ1.println(grille.toString());
-        this.writerJ2.println(grille.toString());
-        if (joueurGagnant != null) {
-            this.writerJ1.println("Félicitations ! " + this.getNomJoueur(joueurGagnant) + " a gagné !");
-            this.writerJ2.println("Félicitations ! " + this.getNomJoueur(joueurGagnant) + " a gagné !");
-        } else {
-            this.writerJ1.println("La partie est terminée, Égalité !.");
-            this.writerJ2.println("La partie est terminée, Égalité !.");
+        } catch (IOException e) {
+            System.out.println("ERR de communication avec le joueur : " + e.getMessage());
+            gameActive = false;
         }
     }
 
@@ -166,17 +127,24 @@ public class Partie extends Thread {
             Grille grille = new Grille();
             this.setGrille(grille);
 
-            this.readerJ1 = new BufferedReader(new InputStreamReader(this.client1.getInputStream()));
-            this.writerJ1 = new PrintWriter(this.client1.getOutputStream(), true);
-            
-            this.readerJ2 = new BufferedReader(new InputStreamReader(this.client2.getInputStream()));
-            this.writerJ2 = new PrintWriter(this.client2.getOutputStream(), true);
-            
-            this.startGame();
-        } catch (IOException e) {
-            System.out.println(e);
-        } catch (InvalidColumnException e) {
-            System.out.println(e);
+            writerJ1.println("Début de la partie !");
+            writerJ2.println("Début de la partie !");
+
+            Etat joueurActuel = new Random().nextBoolean() ? Etat.P1 : Etat.P2;
+
+            while (gameActive) {
+                if (joueurActuel == Etat.P1) {
+                    handlePlayerInput(readerJ1, writerJ1, writerJ2, joueurActuel);
+                } else {
+                    handlePlayerInput(readerJ2, writerJ2, writerJ1, joueurActuel);
+                }
+                joueurActuel = prochainJoueur(joueurActuel);
+            }
+
+            writerJ1.println("Fin de la partie !");
+            writerJ2.println("Fin de la partie !");
+        } catch (Exception e) {
+            System.out.println("ERR dans le déroulement de la partie: " + e.getMessage());
         }
     }
 }

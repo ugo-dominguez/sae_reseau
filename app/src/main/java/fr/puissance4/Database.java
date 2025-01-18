@@ -11,9 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Database {
-    Connection conn;
+    private Connection conn;
+    private static Database database = null;
 
-    public Database() {
+    private Database() {
         // Définir le chemin de la base de données
         String dbPath = "data/db.sqlite3";
 
@@ -39,13 +40,21 @@ public class Database {
         }
     }
 
+    public static Database getDatabase() {
+        if (Database.database == null) {
+            Database.database = new Database();
+        }
+        
+        return Database.database;
+    }
+
     public void creerTables() {
         String query = """
             CREATE TABLE IF NOT EXISTS partie (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 joueur1 TEXT NOT NULL,
                 joueur2 TEXT NOT NULL,
-                gagnant TEXT NOT NULL
+                gagnant TEXT
             );
         """;
 
