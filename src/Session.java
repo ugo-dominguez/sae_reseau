@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 class Session extends Thread {
+    static final String CONNECTED = "Vous êtes connecté au serveur.";
     private Socket client1;
     private Socket client2;
 
@@ -21,8 +22,8 @@ class Session extends Thread {
             BufferedReader reader2 = new BufferedReader(new InputStreamReader(client2.getInputStream()));
             PrintWriter writer2 = new PrintWriter(client2.getOutputStream(), true)
         ) {
-            writer1.println("Vous êtes connecté au serveur.");
-            writer2.println("Vous êtes connecté au serveur.");
+            writer1.println(CONNECTED);
+            writer2.println(CONNECTED);
 
             String message1, message2;
             while (true) {

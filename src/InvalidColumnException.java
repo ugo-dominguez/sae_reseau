@@ -1,3 +1,2 @@
-public class InvalidColumnException extends Exception {
-    
-}
+
+public class InvalidColumnException extends Exception {}

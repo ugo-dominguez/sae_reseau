@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+
 public class Server {
     private ServerSocket serverSocket;
 
@@ -21,7 +22,7 @@ public class Server {
 
                 Partie partie = new Partie(client1, client2);
                 partie.start();
-                break;
+
             } catch (IOException e) {
                 System.out.println("Erreur lors de l'acceptation de la connexion : " + e.getMessage());
             }
@@ -30,8 +31,9 @@ public class Server {
 
     public static void main(String[] args) {
         try {
-            Server server = new Server(12345);
+            Server server = new Server(55555);
             server.start();
+
         } catch (IOException e) {
             System.out.println("Erreur serveur : " + e.getMessage());
         }

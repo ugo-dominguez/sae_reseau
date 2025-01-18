@@ -4,15 +4,19 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+
 class Client {
+    static final String ASKIP = "Entrez l'IP de la machine du serveur de Jeu : ";
+    static final String ASKUSERNAME = "Entrez votre nom d'utilisateur :  ";
+
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
 
     public Client(String host, int port) throws IOException {
-        socket = new Socket(host, port);
-        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        writer = new PrintWriter(socket.getOutputStream(), true);
+        this.socket = new Socket(host, port);
+        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.writer = new PrintWriter(socket.getOutputStream(), true);
         System.out.println("Connecté au serveur sur " + host + ":" + port);
     }
 
@@ -35,6 +39,7 @@ class Client {
             while ((userInput = consoleReader.readLine()) != null) {
                 writer.println(userInput);
             }
+
         } catch (IOException e) {
             System.out.println("Erreur lors de l'envoi au serveur : " + e.getMessage());
         }
@@ -42,12 +47,17 @@ class Client {
 
     public static void main(String[] args) {
         try {
-            System.out.println("Entre l'IP de la machine du serveur de Jeu : ");
-            BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
-            String host = scanner.readLine();
+            BufferedReader preScanner = new BufferedReader(new InputStreamReader(System.in));
 
-            Client client = new Client(host, 12345);
+            System.out.println(ASKIP);
+            String host = preScanner.readLine();
+
+            System.out.println(ASKUSERNAME);
+            String username = preScanner.readLine();
+
+            Client client = new Client(host, 55555);
             client.start();
+
         } catch (IOException e) {
             System.out.println("Erreur client : " + e.getMessage());
         }

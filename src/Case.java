@@ -1,4 +1,5 @@
-class Case {
+
+public class Case {
     private Etat etat;
 
     public Case() {
